@@ -138,11 +138,24 @@ RCT_EXPORT_METHOD(getEmail:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
       
       //Return full name
       [contactData setValue:fullName forKey:@"name"];
-      
-      //Return first phone number
-      if([phoneNos count] > 0) {
-        CNPhoneNumber *phone = ((CNLabeledValue *)phoneNos[0]).value;
-        [contactData setValue:phone.stringValue forKey:@"phone"];
+      [contactData setValue:contact.givenName forKey:@"firstName"];
+      [contactData setValue:contact.middleName forKey:@"middleName"];
+      [contactData setValue:contact.familyName forKey:@"lastName"];
+      @try {
+        //Return first phone number
+        if([phoneNos count] > 0) {
+          NSMutableArray *phones = [NSMutableArray array];
+          
+          for (int i = 0;  i < [phoneNos count]; i++) {
+            CNPhoneNumber *phone = ((CNLabeledValue *)phoneNos[i]).value;
+            [phones addObject:phone.stringValue];
+          }
+          
+          [contactData setObject:phones forKey:@"phone"];
+        }
+      }
+      @catch (NSException *exception) {
+        NSLog(@"%@", exception);
       }
       
       //Return first email address
