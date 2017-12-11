@@ -141,14 +141,22 @@ RCT_EXPORT_METHOD(getEmail:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
       [contactData setValue:contact.givenName forKey:@"firstName"];
       [contactData setValue:contact.middleName forKey:@"middleName"];
       [contactData setValue:contact.familyName forKey:@"lastName"];
+      
       @try {
         //Return first phone number
         if([phoneNos count] > 0) {
           NSMutableArray *phones = [NSMutableArray array];
           
           for (int i = 0;  i < [phoneNos count]; i++) {
-            CNPhoneNumber *phone = ((CNLabeledValue *)phoneNos[i]).value;
-            [phones addObject:phone.stringValue];
+            CNLabeledValue *phone = phoneNos[i];
+            NSMutableDictionary *phoneDict = [[NSMutableDictionary alloc] initWithObjects:@[@"", @""] forKeys:@[@"type", @"phone"]];
+            CNPhoneNumber *phoneNumber = (CNPhoneNumber *)phone.value;
+            NSString *label = phone.label;
+            label = [CNLabeledValue localizedStringForLabel:label];
+            [phoneDict setValue:(NSString *)phoneNumber.stringValue forKey:@"phone"];
+            [phoneDict setValue:(NSString *)label forKey:@"type"];
+            
+            [phones addObject:phoneDict];
           }
           
           [contactData setObject:phones forKey:@"phone"];
